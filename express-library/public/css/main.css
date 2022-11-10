@@ -1,0 +1,21 @@
+.wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.card-small-text {
+    white-space: nowrap;
+    overflow: hidden;
+    background: #fc0;
+    padding: 5px;
+    text-overflow: ellipsis;
+}
+.main-link{
+    text-align: center;
+    text-decoration: none;
+    background: #00ffff2e;
+    padding: 10px 0;
+    border-radius: 10px;
+}

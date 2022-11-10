@@ -1,0 +1,8 @@
+/node_modules
+package-lock.json
+.idea
+.idea/vcs.xml
+/hm3/http.js
+/hm3/index.js
+server.logs
+.env

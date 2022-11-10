@@ -1,0 +1,40 @@
+services:
+  storage:
+    image: redis:latest
+    volumes:
+      - ./counter/data:/counter/data
+    networks:
+      - internal
+  counter:
+    image: node:latest
+    volumes:
+      - ./counter:/counter
+    ports:
+      - 8081:3001
+    environment:
+      - PORT=3001
+      - REDIS_URL=redis://storage
+    working_dir: /counter
+    depends_on:
+      - storage
+    command: ["npm", "run", "prod"]
+    networks:
+      - internal
+  site:
+    image: node:latest
+    volumes:
+      - ./express-library:/express-library
+    ports:
+      - 8080:3002
+    environment:
+      - PORT=3002
+      - COUNTER_URL=http://counter:3001
+    working_dir: /express-library/app
+    depends_on:
+      - counter
+    command: ["npm", "run", "prod"]
+    networks:
+      - internal
+networks:
+  internal:
+    driver: bridge

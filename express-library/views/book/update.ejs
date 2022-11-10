@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <%- include('../parts/main'); %>
+    <%- include('../parts/bootstrap'); %>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>
+        <%= title %>
+    </title>
+</head>
+<body>
+<div class="container">
+    <h1 class="mb-3 mt-5" style="margin-right: 15px;"> Редактирование книги:  <%= pageTitle %></h1>
+    <form enctype="multipart/form-data" action="/api/books/<%=book.id%>/update" method="POST">
+        <input type="HIDDEN" name="client" value="client"/>
+        <div class="form-group mb-3">
+            <label>
+                <span>Название Книги</span>
+                <input type="text" class="form-control" placeholder="Введите название" name="title" value="<%=book.title%>" required>
+            </label>
+        </div>
+        <div class="form-group mb-3">
+            <label>
+                <span> Описание книги </span>
+                <textarea rows="3" cols="25" class="form-control" name="description">
+                    <%=book.description%>
+                </textarea>
+            </label>
+        </div>
+        <div class="form-group mb-3">
+            <label>
+                <span>Авторы</span>
+                <input type="text" class="form-control" placeholder="Введите название" name="authors" value="<%=book.authors%>">
+            </label>
+        </div>
+        <div class="form-group mb-3">
+            <label>
+                <span>Favorite</span>
+                <input type="text" class="form-control" placeholder="Введите название" name="favorite" value="<%=book.favorite%>">
+            </label>
+        </div>
+        <div class="form-group mb-3">
+            <label>
+                <span>File Cover</span>
+                <input type="text" class="form-control" placeholder="Введите название" name="fileCover" value="<%=book.fileCover%>">
+            </label>
+        </div>
+        <div class="form-group mb-3">
+            <label>
+                <span>Добавить Файл</span>
+                <input name="fileBook" type="file" required>
+            </label>
+        </div>
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+    </form>
+</div>
+</body>
+</html>
