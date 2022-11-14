@@ -8,7 +8,7 @@ COPY package*.json ./
 
 RUN npm install
 
-COPY src ./src
+COPY . .
 
-CMD ["npm", "run", "prod"]
+CMD ["npm", "run", "dev"]
 

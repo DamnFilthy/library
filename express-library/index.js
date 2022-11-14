@@ -26,22 +26,14 @@ app.use('/site', publicRouter)
 app.use(error404)
 
 const PORT = process.env.PORT || 3000
-const urlDB = process.env.urlDB
-const LOCAL_DB_URL = process.env.LOCAL_DB_URL
-const local_url = 'mongodb://root:example@mongo:27017/books?authSource=admin'
-const test_url = 'mongodb://root:example@mongo:27017/books/streamhatchet?directConnection=true&authSource=admin&replicaSet=replicaset&retryWrites=true'
-
-const options = {
-        user: "admin",
-        pass: "pass",
-        dbName: 'books'
-    }
+const local_url = 'mongodb://root:example@mongo:27017/library?directConnection=true&authSource=admin&replicaSet=replicaset&retryWrites=true'
 
 ;(async () => {
     try {
-        await mongoose.connect('mongodb://mongo:27017', options)
+        await mongoose.connect(local_url)
             .then(() => console.log("Database connected!"))
             .catch(err => console.log(err));
+
         app.listen(PORT)
     } catch (e) {
         console.log(e)

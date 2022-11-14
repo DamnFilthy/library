@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     deleteLinks.forEach(item => {
         item.addEventListener('click', function (e) {
             e.preventDefault()
-            fetch('http://localhost:5000/api/books/' + this.id, {
+            fetch('http://localhost:8083/api/books/' + this.id, {
                 method: 'DELETE',
             })
                 .then(res => {

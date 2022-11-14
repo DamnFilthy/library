@@ -1,66 +1,12 @@
 const express = require('express')
 const apiRouter = express.Router()
-const {v4: uuid} = require('uuid');
 const fileMolter = require('../middleware/file.js')
 const fs = require('fs')
 const path = require('path')
 
-class Book {
-    constructor(
-        title = '',
-        description = '',
-        authors = '',
-        favorite = '',
-        fileCover = '',
-        fileName = '',
-        fileBook = '',
-        id = uuid()
-    ) {
-        this.id = id
-        this.title = title
-        this.description = description
-        this.authors = authors
-        this.favorite = favorite
-        this.fileName = fileName
-        this.fileCover = fileCover
-        this.fileBook = fileBook
-    }
-}
+const Book = require('../models/book')
 
-const store = {
-    books: [
-        {
-            id: "1",
-            title: "Сказать жизни «Да!»: психолог в концлагере",
-            description: "Эта удивительная книга сделала ее автора одним из величайших духовных учителей человечества в XX веке. В ней философ и психолог Виктор Франкл, прошедший нацистские лагеря смерти, открыл миллионам людей всего мира путь постижения смысла жизни.",
-            authors: "Виктор Франкл",
-            favorite: "Биографии и мемуары, Зарубежная публицистика",
-            fileCover: "Хит продаж",
-            fileName: "test.png",
-            fileBook: '/public/books/test.png'
-        },
-        {
-            id: "2",
-            title: "Will",
-            description: "Чему может научить нас простой парень, ставший самым высокооплачиваемым актером Голливуда",
-            authors: "Уилл Смитб Марк Мэнсон",
-            favorite: "second favorite",
-            fileCover: "second fileCover",
-            fileName: "test.png",
-            fileBook: '/public/books/test.png'
-        },
-        {
-            id: "3",
-            title: "Тонкое искусство пофигизма.",
-            description: "необходимо научиться искусству пофигизма. Определив то, до чего вам действительно есть дело, нужно уметь наплевать на все второстепенное, забить на трудности",
-            authors: "Марк Мэнсон",
-            favorite: " Зарубежная психология, Саморазвитие / личностный рост, Социальная психология",
-            fileCover: " Бестселлеры «New York Times», Борьба со стрессом, Поиск предназначения, Самореализация",
-            fileName: "test.png",
-            fileBook: '/public/books/test.png'
-        },
-    ]
-}
+let ObjectId = require('mongodb').ObjectId;
 
 const auth = {
     users: [
@@ -87,34 +33,35 @@ apiRouter.get('/user/login', (req, res) => {
     }
 })
 
-apiRouter.get('/books', (req, res) => {
-    const {books} = store
+apiRouter.get('/books', async (req, res) => {
+    const books = await Book.find({}).select('-__v')
+
     res.status(200)
     res.json(books)
 })
 
-apiRouter.get('/books/:id', (req, res) => {
-    const {books} = store
+apiRouter.get('/books/:id', async (req, res) => {
     const {id} = req.params
-    const index = books.findIndex(item => item.id === id)
+    let o_id = new ObjectId(id);
+    const bookID = await Book.findOne({"_id": o_id})
 
-    if (index !== -1) {
+    if (bookID) {
         res.status(200)
-        res.json(books[index])
+        res.json(bookID)
     } else {
         res.status(404)
         res.json({error: '404 | книга не найдена'})
     }
 })
 
-apiRouter.get('/books/:id/download', (req, res) => {
-    const {books} = store
+apiRouter.get('/books/:id/download', async (req, res) => {
     const {id} = req.params
-    const index = books.findIndex(item => item.id == id)
+    let o_id = new ObjectId(id);
+    const bookID = await Book.findOne({"_id": o_id})
 
-    if (index !== -1) {
+    if (bookID) {
         res.status(200)
-        res.download(path.join(process.cwd(), books[index].fileBook), books[index].fileName)
+        res.download(path.join(process.cwd(), bookID.fileBook), bookID.fileName)
     } else {
         res.status(404)
         res.json({error: '404 | книга не найдена'})
@@ -122,8 +69,7 @@ apiRouter.get('/books/:id/download', (req, res) => {
 })
 
 apiRouter.post('/books', fileMolter.single('fileBook'),
-    (req, res) => {
-        const {books} = store
+    async (req, res) => {
         const {title, description, authors, favorite, fileCover, client} = req.body
 
         if (!title || title === '') {
@@ -133,13 +79,19 @@ apiRouter.post('/books', fileMolter.single('fileBook'),
 
         const fileBook = '/public/books/' + req.file.filename
         const fileName = req.file.filename
-        const newBook = new Book(title, description, authors, favorite, fileCover, fileName, fileBook)
-
-        books.push(newBook)
+        new Book({
+            title: title,
+            description: description,
+            authors: authors,
+            favorite: favorite,
+            fileCover: fileCover,
+            fileName: fileName,
+            fileBook: fileBook
+        }).save().then(r => console.log(r)).catch(e => console.log(e))
 
         if (!client) {
             res.status(201)
-            res.json(newBook)
+            res.json({message: "Книга Создана"})
         } else {
             res.status(201)
             res.redirect('/site/books')
@@ -147,10 +99,11 @@ apiRouter.post('/books', fileMolter.single('fileBook'),
     })
 
 apiRouter.put('/books/:id', fileMolter.single('fileBook'),
-    (req, res) => {
-        const {books} = store
-        const {title, description, authors, favorite, fileName, fileCover, client} = req.body
+    async (req, res) => {
+        const {title} = req.body
         const {id} = req.params
+        let o_id = new ObjectId(id);
+        let bookID = await Book.findOne({"_id": o_id})
 
         if (req.file) {
             var fileBook = '/public/books/' + req.file.filename
@@ -158,148 +111,93 @@ apiRouter.put('/books/:id', fileMolter.single('fileBook'),
 
         if (!title || title === '') {
             res.sendStatus(400)
+            res.json({error: 'field title is required'})
             return
         }
-        const index = books.findIndex(item => item.id == id)
 
-        if (client && index !== -1) {
-            books[index] = {
-                ...books[index],
-                title,
-                description,
-                authors,
-                favorite,
-                fileName,
-                fileCover,
-                fileBook
-            }
+        try {
+            await Book.updateOne(
+                {"_id": o_id},
+                {
+                    $set:
+                        {
+                            "title": req.body.title,
+                            "description": req.body.description,
+                            "authors": req.body.authors,
+                            "favorite": req.body.favorite,
+                            "fileName": req.body.fileName,
+                            "fileCover": req.body.fileCover,
+                            "fileBook": fileBook
+                        },
+                }
+            )
             res.status(204)
-            res.redirect('/site/books')
-        }else if(!client && index !== -1) {
-            books[index] = {
-                ...books[index],
-                title,
-                description,
-                authors,
-                favorite,
-                fileName,
-                fileCover,
-                fileBook
-            }
-            res.status(204)
-            res.json(books[index])
-        } else {
+            res.json(bookID)
+        } catch (e) {
+            console.log(e)
             res.status(404)
             res.json({error: '404 | запись не найдена'})
         }
     })
 
-
 apiRouter.post('/books/:id/update', fileMolter.single('fileBook'),
-    (req, res) => {
-        const {books} = store
-        const {title} = req.body
+    async (req, res) => {
         const {id} = req.params
+        let o_id = new ObjectId(id);
 
-        if (!title || title === '') {
-            res.sendStatus(400)
-            return
-        }
+        let fileBook = '/public/books/' + req.file.filename
 
-        const index = books.findIndex(item => item.id == id)
-
-        if (req.file) {
-            let fileBook = '/public/books/' + req.file.filename
-
-            if (index !== -1) {
-                books[index] = {
-                    ...books[index],
-                    ...req.body,
-                    fileBook
+        try {
+            await Book.updateOne(
+                {"_id": o_id},
+                {
+                    $set:
+                        {
+                            "title": req.body.title,
+                            "description": req.body.description,
+                            "authors": req.body.authors,
+                            "favorite": req.body.favorite,
+                            "fileName": req.body.fileName,
+                            "fileCover": req.body.fileCover,
+                            "fileBook": fileBook
+                        },
                 }
-                res.status(204)
-                res.redirect('/site/books')
-            } else {
-                res.status(404)
-                res.json({error: '404 | запись не найдена'})
-            }
-        } else {
-            if (index !== -1) {
-                books[index] = {
-                    ...books[index],
-                    ...req.body
-                }
-                res.status(204)
-                res.redirect('/site/books')
-            } else {
-                res.status(404)
-                res.json({error: '404 | запись не найдена'})
-            }
+            )
+            res.status(204)
+            res.redirect('/site/books')
+        } catch (e) {
+            res.status(404)
+            res.json({error: e})
         }
     })
 
-apiRouter.patch('/books/:id', fileMolter.single('fileBook'),
-    (req, res) => {
-        const {books} = store
-        const {title} = req.body
-        const {id} = req.params
-
-        if (!title || title === '') {
-            res.sendStatus(400)
-            return
-        }
-
-        const index = books.findIndex(item => item.id == id)
-
-        if (req.file) {
-            let fileBook = '/public/books/' + req.file.filename
-
-            if (index !== -1) {
-                books[index] = {
-                    ...books[index],
-                    ...req.body,
-                    fileBook
-                }
-                res.status(204)
-                res.json(books[index])
-            } else {
-                res.status(404)
-                res.json({error: '404 | запись не найдена'})
-            }
-        } else {
-            if (index !== -1) {
-                books[index] = {
-                    ...books[index],
-                    ...req.body
-                }
-                res.status(204)
-                res.json(books[index])
-            } else {
-                res.status(404)
-                res.json({error: '404 | запись не найдена'})
-            }
-        }
-    })
-
-apiRouter.delete('/books/:id', (req, res) => {
-    const {books} = store
+apiRouter.delete('/books/:id', async (req, res) => {
     const {id} = req.params
+    let o_id = new ObjectId(id);
 
-    const index = books.findIndex(item => item.id == id)
+    let bookID = await Book.findOne({"_id": o_id})
 
-    if (index !== -1) {
+    if (bookID) {
+        // Удаление файла на сервере
         try {
             const rootDir = require('path').resolve('./')
-            fs.unlinkSync(rootDir + books[index].fileBook)
+            fs.unlinkSync(rootDir + bookID.fileBook)
         } catch (error) {
-            fs.appendFile('server.logs', `FILE ${books[index].fileBook} ERROR TO DELETE: ${error}`,
+            fs.appendFile('server.logs', `FILE ${bookID.fileBook} ERROR TO DELETE: ${error}`,
                 (err) => {
                     if (err) throw err;
                 })
         }
-        books.splice(books[index], 1)
-        res.status(201)
-        res.json({success: 'Запись была успешна удалена.'})
+        // Удаление записи в бд
+        try {
+            await Book.deleteOne({"_id": o_id})
+            res.status(201)
+            res.json({success: 'Запись была успешна удалена.'})
+        } catch (e) {
+            res.status(404)
+            res.json({error: e})
+        }
+
     } else {
         res.status(404)
         res.json({error: '404 | запись не найдена'})
@@ -307,8 +205,7 @@ apiRouter.delete('/books/:id', (req, res) => {
 })
 
 apiRouter.delete('/__test__/data', (req, res) => {
-    store.books = []
     res.sendStatus(204)
 })
 
-module.exports = {apiRouter, store}
+module.exports = {apiRouter}

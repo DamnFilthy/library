@@ -5,6 +5,8 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
+    networks:
+      - internal
   mongo-express:
     image: mongo-express
     restart: always
@@ -14,6 +16,8 @@ services:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: example
       ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
+    networks:
+      - internal
   storage:
     image: redis:latest
     restart: always
@@ -22,7 +26,7 @@ services:
     networks:
       - internal
   counter:
-    image: node:14
+    build: ./counter
     restart: always
     volumes:
       - ./counter:/counter
@@ -34,14 +38,11 @@ services:
     working_dir: /counter
     depends_on:
       - storage
-      - mongo
-      - mongo-express
-    command: ["npm", "run", "prod"]
     networks:
       - internal
   api:
     container_name: node-books-api
-    image: node:14
+    build: ./express-library
     restart: always
     volumes:
       - ./express-library:/express-library
@@ -50,12 +51,10 @@ services:
     environment:
       - PORT=3003
       - COUNTER_URL=http://counter:3002
-    working_dir: /express-library/app
+    working_dir: /express-library
     depends_on:
       - counter
       - mongo
-      - mongo-express
-    command: ["npm", "run", "dev"]
     networks:
       - internal
 networks:
