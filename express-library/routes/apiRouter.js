@@ -110,7 +110,7 @@ apiRouter.put('/books/:id', fileMolter.single('fileBook'),
         }
 
         if (!title || title === '') {
-            res.sendStatus(400)
+            res.status(400)
             res.json({error: 'field title is required'})
             return
         }
@@ -127,7 +127,7 @@ apiRouter.put('/books/:id', fileMolter.single('fileBook'),
                             "favorite": req.body.favorite,
                             "fileName": req.body.fileName,
                             "fileCover": req.body.fileCover,
-                            "fileBook": fileBook
+                            "fileBook": fileBook ? fileBook : ''
                         },
                 }
             )
