@@ -1,38 +1,61 @@
 services:
+  mongo:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
   storage:
     image: redis:latest
+    restart: always
     volumes:
       - ./counter/data:/counter/data
     networks:
       - internal
   counter:
-    image: node:latest
+    image: node:14
+    restart: always
     volumes:
       - ./counter:/counter
     ports:
-      - 8081:3001
+      - 8082:3002
     environment:
-      - PORT=3001
+      - PORT=3002
       - REDIS_URL=redis://storage
     working_dir: /counter
     depends_on:
       - storage
+      - mongo
+      - mongo-express
     command: ["npm", "run", "prod"]
     networks:
       - internal
-  site:
-    image: node:latest
+  api:
+    container_name: node-books-api
+    image: node:14
+    restart: always
     volumes:
       - ./express-library:/express-library
     ports:
-      - 8080:3002
+      - 8083:3003
     environment:
-      - PORT=3002
-      - COUNTER_URL=http://counter:3001
+      - PORT=3003
+      - COUNTER_URL=http://counter:3002
     working_dir: /express-library/app
     depends_on:
       - counter
-    command: ["npm", "run", "prod"]
+      - mongo
+      - mongo-express
+    command: ["npm", "run", "dev"]
     networks:
       - internal
 networks:

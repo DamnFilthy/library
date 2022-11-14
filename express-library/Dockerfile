@@ -2,7 +2,7 @@ FROM node:latest
 
 WORKDIR /express-library
 
-ARG NODE_ENV=production
+ARG NODE_ENV=development
 
 COPY package*.json ./
 
