@@ -22,7 +22,7 @@ app.use(express.urlencoded({extended: true}))
 app.use(logger)
 app.use('/public', express.static(__dirname + '/public'))
 app.use('/api', apiRouter)
-app.use('/site', publicRouter)
+app.use('/', publicRouter)
 app.use(error404)
 
 const PORT = process.env.PORT || 3000

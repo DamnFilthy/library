@@ -8,7 +8,7 @@ const Book = require('../models/book')
 
 let ObjectId = require('mongodb').ObjectId;
 
-publicRouter.get('/books', async (req, res) => {
+publicRouter.get('/', async (req, res) => {
     try {
         const books = await Book.find({}).select('-__v')
         res.status(200)

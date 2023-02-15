@@ -15,7 +15,7 @@
 <div class="container">
     <div class="d-flex justify-content-center align-items-center">
         <h1 class="mb-5 mt-5" style="margin-right: 15px;"><%= pageTitle %></h1>
-        <a href="/site/add-book">
+        <a href="/add-book">
             <button type="button" class="btn btn-success" style="height: 50px">Добавить книгу</button>
         </a>
     </div>
@@ -47,7 +47,7 @@
                 <img class="card-img-top" src="/public/media/book.png" alt="Card image cap">
                 <div class="card-body">
                     <h5 class="card-title d-flex justify-content-center">
-                        <a href="/site/books/<%- book.id %>" class="mb-3 mt-3 main-link"><%- book.title %></a>
+                        <a href="/books/<%- book.id %>" class="mb-3 mt-3 main-link"><%- book.title %></a>
                     </h5>
                     <p class="card-text text-center card-small-text">
                         <%- book.description %>

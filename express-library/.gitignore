@@ -6,3 +6,4 @@ package-lock.json
 /hm3/index.js
 server.logs
 .env
+/public/books

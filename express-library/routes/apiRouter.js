@@ -37,7 +37,7 @@ apiRouter.get('/books', async (req, res) => {
     const books = await Book.find({}).select('-__v')
 
     res.status(200)
-    res.json(books)
+    await res.json(books)
 })
 
 apiRouter.get('/books/:id', async (req, res) => {
@@ -47,10 +47,10 @@ apiRouter.get('/books/:id', async (req, res) => {
 
     if (bookID) {
         res.status(200)
-        res.json(bookID)
+        await res.json(bookID)
     } else {
         res.status(404)
-        res.json({error: '404 | книга не найдена'})
+        await res.json({error: '404 | книга не найдена'})
     }
 })
 
@@ -94,7 +94,7 @@ apiRouter.post('/books', fileMolter.single('fileBook'),
             res.json({message: "Книга Создана"})
         } else {
             res.status(201)
-            res.redirect('/site/books')
+            res.redirect('/books')
         }
     })
 
@@ -164,7 +164,7 @@ apiRouter.post('/books/:id/update', fileMolter.single('fileBook'),
                 }
             )
             res.status(204)
-            res.redirect('/site/books')
+            res.redirect('/books')
         } catch (e) {
             res.status(404)
             res.json({error: e})
