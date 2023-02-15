@@ -27,7 +27,7 @@ authRouter.post('/register', (req, res) => {
 
     db.users.findByUsername(req.body.username, function (err, user, next) {
         if (err) {
-            res.render('user/register', {message: 'Пользователь с таким логином уже существует'});
+            res.render('user/register', {message: 'Произошла ошибка: ' + err});
         }
         if (user) {
             res.render('user/register', {message: 'Пользователь с таким логином уже существует'});
@@ -38,16 +38,11 @@ authRouter.post('/register', (req, res) => {
                 if (err) {
                     return res.render('user/register', {message: 'Произошла ошибка: ' + err});
                 }
-                if (!user) {
-                    return res.redirect('/auth/register');
-                }
-
-                // req / res held in closure
                 req.logIn(user, function (err) {
                     if (err) {
                         return res.render('user/register', {message: 'Произошла ошибка: ' + err});
                     }
-                    return res.render('user/profile', {user});
+                    return res.redirect('/');
                 });
 
             })(req, res, next);
