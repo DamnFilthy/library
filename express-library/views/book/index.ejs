@@ -18,6 +18,15 @@
         <a href="/add-book">
             <button type="button" class="btn btn-success" style="height: 50px">Добавить книгу</button>
         </a>
+        <div class="auth-block">
+            <% if (!user) { %>
+                <a href="/auth">Авторизация</a>
+            <% } else { %>
+                <a href="/auth/profile">Профиль</a>
+                <a href="/auth/logout">Выйти</a>
+            <% } %>
+        </div>
+
     </div>
     <div class="wrapper">
         <% books.forEach(book => { %>

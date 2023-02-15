@@ -1,0 +1,31 @@
+<form action="/auth/register" method="post">
+    <div>
+        <label>Ваше имя:</label>
+        <input type="text" name="displayName" required/><br/>
+    </div>
+    <div>
+        <label>Ваш email:</label>
+        <input type="text" name="email" required/><br/>
+    </div>
+    <div>
+        <label>Логин:</label>
+        <input type="text" name="username" required/><br/>
+    </div>
+    <div>
+        <label>Пароль:</label>
+        <input type="password" name="password" required/>
+    </div>
+    <div>
+        <input type="submit" value="Зарегистрироваться"/>
+    </div>
+</form>
+
+<div>
+    <% if (message) { %>
+        <%= message %>
+    <% } %>
+</div>
+
+<div>
+    <a href="/auth">У меня есть аккаунт, Войти</a>
+</div>

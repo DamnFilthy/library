@@ -3,9 +3,13 @@ const mongoose = require('mongoose');
 const logger = require('./middleware/logger')
 const error404 = require('./middleware/error404')
 const {apiRouter} = require('./routes/apiRouter')
+const authRouter = require('./routes/authRouter')
 const publicRouter = require('./routes/publicRouter')
 const cors = require('cors');
 const clientUrl = 'http://localhost:8083';
+
+const session = require('express-session')
+const {passport} = require('./passport')
 
 app = express()
 app.set('view engine', 'ejs')
@@ -17,12 +21,17 @@ app.all('/*', (req, res, next) => {
     next();
 });
 
+app.use(session({secret: 'SECRET'}));
+app.use(passport.initialize())
+app.use(passport.session())
+
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 app.use(logger)
 app.use('/public', express.static(__dirname + '/public'))
 app.use('/api', apiRouter)
 app.use('/', publicRouter)
+app.use('/auth', authRouter)
 app.use(error404)
 
 const PORT = process.env.PORT || 3000
@@ -40,4 +49,4 @@ const local_url = 'mongodb://root:example@mongo:27017/library?directConnection=t
     }
 })()
 
-module.exports = app
+module.exports = {app, passport}
