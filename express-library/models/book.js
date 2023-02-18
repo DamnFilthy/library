@@ -13,6 +13,10 @@ const bookSchema = new Schema({
         type: String,
         default: ""
     },
+    comments: {
+        type: Array,
+        default: []
+    },
     favorite: {
         type: String,
         default: ""

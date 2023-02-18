@@ -3,7 +3,6 @@ const express = require('express')
 const publicRouter = express.Router()
 const request = require('request');
 const COUNTER_URL = process.env.COUNTER_URL || 'http://counter:3002/';
-
 const Book = require('../models/book')
 
 let ObjectId = require('mongodb').ObjectId;
