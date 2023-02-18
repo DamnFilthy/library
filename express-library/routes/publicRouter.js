@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const express = require('express')
 const publicRouter = express.Router()
 const request = require('request');
-const COUNTER_URL = process.env.COUNTER_URL || 'http://counter:3002/'
+const COUNTER_URL = process.env.COUNTER_URL || 'http://counter:3002/';
 
 const Book = require('../models/book')
 
@@ -15,7 +15,8 @@ publicRouter.get('/', async (req, res) => {
         res.render('book/index', {
             title: 'Books',
             pageTitle: 'Список Книг',
-            books
+            books,
+            user: req.user
         })
     } catch (e) {
         console.log(e)
@@ -95,4 +96,5 @@ publicRouter.get('/add-book', (req, res) => {
         pageTitle: 'Создать Книгу'
     })
 })
+
 module.exports = publicRouter
