@@ -12,5 +12,10 @@
     </div>
 </form>
 <div>
+    <% if(query && query.loginError) { %>
+      <span style="color: red; font-size: 14px;">Не правильные данные для входа</span>
+    <% } %>
+</div>
+<div>
     <a href="/auth/register">У меня нет аккаунта, зарегистрироваться?</a>
 </div>

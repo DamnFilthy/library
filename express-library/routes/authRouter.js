@@ -4,10 +4,13 @@ const {passport} = require('../passport');
 const db = require('../db')
 
 authRouter.get('/', async (req, res) => {
-    res.render('user/login')
+    res.render('user/login', {query : req.query})
 })
 
-authRouter.post('/', passport.authenticate('local', {failureRedirect: '/auth', failureMessage: true}),
+authRouter.post('/', passport.authenticate('local', {
+        failureRedirect: '/auth?loginError=true',
+        failureMessage: true,
+    }),
     (req, res) => {
         res.redirect('/')
     }

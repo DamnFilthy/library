@@ -8,11 +8,11 @@ const verify = (username, password, done) => {
             return done(err)
         }
         if (!user) {
-            return done(null, false)
+            return done(null, false, {message: 'Неверный логин'})
         }
 
         if (!db.users.verifyPassword(user, password)) {
-            return done(null, false)
+            return done(null, false, {message: 'Неверный пароль'})
         }
 
         return done(null, user)
@@ -24,16 +24,16 @@ const options = {
     passwordField: "password",
 }
 
-passport.serializeUser((user, cb) => {
-    cb(null, user.id)
+passport.serializeUser((user, done) => {
+    done(null, user.id)
 })
 
-passport.deserializeUser((id, cb) => {
+passport.deserializeUser((id, done) => {
     db.users.findById(id, (err, user) => {
         if (err) {
-            return cb(err)
+            return done(err)
         }
-        cb(null, user)
+        done(null, user)
     })
 })
 
